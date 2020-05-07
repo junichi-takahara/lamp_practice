@@ -23,4 +23,6 @@ if(purchase_carts($db, $carts) === false){
 
 $total_price = sum_carts($carts);
 
+$carts = entity_assoc_array($carts);
+
 include_once '../view/finish_view.php';
