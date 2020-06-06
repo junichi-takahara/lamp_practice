@@ -136,7 +136,11 @@ function is_valid_upload_image($image){
 }
 
 function entity_str($str) {
-  return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+  if (is_numeric($str) === TRUE) {
+    return $str;
+  } else {
+    return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+  }
 }
 
 function entity_assoc_array($assoc_array) {
