@@ -18,13 +18,9 @@ ALTER TABLE `history`
     ADD KEY `user_id` (`user_id`);
 
 ALTER TABLE `details`
-    ADD PRIMARY KEY (`order_id`),
     ADD KEY `item_id` (`item_id`);
 
 ALTER TABLE `history`
-    MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `details`
     MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT;
 
 ALTER TABLE `history`
