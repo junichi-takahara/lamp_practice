@@ -17,10 +17,22 @@ $user = get_login_user($db);
 $carts = get_user_carts($db, $user['user_id']);
 
 if (is_valid_csrf_token($_POST['csrf_token'])){
+  $db->beginTransaction();
   if(purchase_carts($db, $carts) === false){
     set_error('商品が購入できませんでした。');
     redirect_to(CART_URL);
-}
+  } else {
+    if (insert_history($db, $carts) === true) {
+      $order_id = $db->lastInsertId('order_id');
+      if (insert_details($db, $order_id, $carts) === true) {
+        $db->commit();
+      } else {
+        $db->rollBack();
+      }
+    } else {
+      $db->rollBack();
+    }
+  }
 } 
 
 $total_price = sum_carts($carts);

@@ -187,3 +187,108 @@ function validate_cart_purchase($carts){
   return true;
 }
 
+function insert_history($db, $carts) {
+  $sql = 'INSERT INTO history (user_id, created) VALUES (?, now())';
+  $params = [$carts[0]['user_id']];
+  return execute_query($db, $sql, $params);
+}
+
+function insert_details($db, $order_id, $carts) {
+  $flag = true;
+  foreach ($carts as $cart) {
+  $sql = 'INSERT INTO details (order_id, item_id, price, amount)
+          VALUES (?, ?, ?, ?)';
+  $params = [$order_id, $cart['item_id'], $cart['price'], $cart['amount']];
+  if (execute_query($db, $sql, $params) === false) {
+    $flag = false;
+  }
+  }
+  return $flag;
+}
+
+function get_history($db, $user_id) {
+  $sql = '
+    SELECT
+      history.order_id,
+      history.created,
+      sum(details.price * details.amount) as total
+    FROM
+      history
+    INNER JOIN
+      details
+    ON
+      history.order_id = details.order_id
+    WHERE
+      history.user_id = ?
+    GROUP BY
+      history.order_id
+  ';
+
+  $params = [$user_id];
+
+  return fetch_all_query($db, $sql, $params);
+}
+
+function get_history_by_order_id($db, $order_id) {
+  $sql = '
+    SELECT
+      history.order_id,
+      history.user_id,
+      history.created,
+      sum(details.price * details.amount) as total
+    FROM
+      history
+    INNER JOIN
+      details
+    ON
+      history.order_id = details.order_id
+    WHERE
+      history.order_id = ?
+    GROUP BY
+      history.order_id
+  ';
+
+  $params = [$order_id];
+
+  return fetch_query($db, $sql, $params);
+}
+
+function get_history_all($db) {
+  $sql = '
+    SELECT
+      history.order_id,
+      history.created,
+      sum(details.price * details.amount) as total
+    FROM
+      history
+    INNER JOIN
+      details
+    ON
+      history.order_id = details.order_id
+    GROUP BY
+      history.order_id
+    ';
+  return fetch_all_query($db, $sql);
+
+}
+
+function get_details($db, $order_id) {
+  $sql = '
+    SELECT
+      items.name,
+      details.price,
+      details.amount
+    FROM
+      items
+    INNER JOIN
+      details
+    ON
+      items.item_id = details.item_id
+    WHERE
+      order_id = ?
+  ';
+
+  $params = [$order_id];
+
+  return fetch_all_query($db, $sql, $params);
+}
