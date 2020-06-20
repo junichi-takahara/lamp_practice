@@ -232,3 +232,29 @@ function is_valid_item_status($status){
   }
   return $is_valid;
 }
+
+function get_ranking($db){
+  $sql = '
+    SELECT
+      details.item_id,
+      items.name,
+      items.price,
+      items.image,
+      sum(amount) as total
+    FROM
+      details
+    INNER JOIN
+      items
+    ON
+      details.item_id = items.item_id
+    WHERE
+      items.status = 1
+    GROUP BY
+      item_id
+    ORDER BY
+      total DESC
+    LIMIT 3
+  ';
+
+  return fetch_all_query($db, $sql);
+}
